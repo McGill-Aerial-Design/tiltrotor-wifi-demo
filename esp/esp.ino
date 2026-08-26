@@ -5,7 +5,7 @@ WiFiServer server(80);
 DNSServer dnsServer;
 IPAddress apIP(172, 217, 28, 1);
 
-int flap = 0;  // 0, 1, 2
+byte flap = 0;  // 0, 1, 2
 int roll = 0;  // -2, -1, 0, 1, 2
 int pitch = 0; // -2, -1, 0, 1, 2
 int yaw = 0;   // -2, -1, 0, 1, 2
@@ -25,9 +25,9 @@ void transmit_state(){
   if (horizontalMode) {Serial.print('h');}
   else {Serial.print('v');}
   Serial.write(flap);
-  Serial.write(pitch);
-  Serial.write(roll);
-  Serial.write(yaw);
+  Serial.write(pitch + 2);
+  Serial.write(roll + 2);
+  Serial.write(yaw + 2);
   lastTX = millis();
 }
 
@@ -72,7 +72,6 @@ void loop() {
     }
 
     else if (req.startsWith("GET /favicon.ico")) {
-      //client.print("HTTP/1.1 404 Not Found\n");
       client.print("HTTP/1.1 200 OK\n");
       client.print("Content-Type: image/jpeg\n");
       client.print("Content-Length:");
@@ -80,12 +79,7 @@ void loop() {
       client.print("\n");
       client.print("Connection: close\n\n");
 
-      //for (unsigned long i=0; i<sizeof(logo)/4; i++){
-      //  client.write(logo[i]);
-      //}
-
       client.write_P((PGM_P)logo, sizeof(logo));
-      //client.print("\n\n");
     }
 
     else { // normal requests
