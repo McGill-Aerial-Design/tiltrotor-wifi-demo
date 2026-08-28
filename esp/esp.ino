@@ -146,11 +146,11 @@ void loop() {
         client.print("<p>This page allows you to send commands to the tilt-rotor drone to demonstrate how the control surfaces work.</p>\n");
         client.print("<meta http-equiv = 'refresh' content = '20; url = /' />\n");
 
-        client.print("<p>Current mode: ");
+        client.print("<p>Current mode: <b>");
 
         if (horizontalMode) {client.print("horizontal");}
         else {client.print("vertical");}
-        client.print(" flight   <a href='/transition'><button>Transition</button></a> </p>\n");
+        client.print(" flight</b>   <a href='/transition'><button>Transition</button></a> </p>\n");
 
         client.print("<h3>Flaps</h3>\n");
         client.print("<p>currently: " + String(flap) + " / 2</p>\n");
@@ -214,7 +214,7 @@ void loop() {
   }
 
 
-  if (millis() - lastTX > 20000) {
+  if (millis() - lastTX > 10000) {
     transmit_state();
   }
 }
