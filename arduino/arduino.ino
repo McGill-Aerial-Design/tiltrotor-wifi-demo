@@ -10,9 +10,9 @@ Servo servoTiltL;
 Servo servoTiltR;
 
 byte flapState = 0;  // 0, 1, 2
-byte rollState = 0;  // 0, 1, 2, 3, 4
-byte pitchState = 0; // 0, 1, 2, 3, 4
-byte yawState = 0;   // 0, 1, 2, 3, 4
+int rollState = 2;  // 0, 1, 2, 3, 4
+int pitchState = 2; // 0, 1, 2, 3, 4
+int yawState = 2;   // 0, 1, 2, 3, 4
 bool horizontalMode = false;
 bool targetHorizontalMode = false;
 
@@ -26,17 +26,19 @@ unsigned int currentRTiltPWM = 1500;
 unsigned int targetLTiltPWM = 1500;
 unsigned int targetRTiltPWM = 1500;
 
-const unsigned int aileronRPWMs[] = {1150, 1300, 1450, 1600, 1750};
+//const unsigned int aileronRPWMs[] = {1150, 1300, 1450, 1600, 1750};
+const unsigned int aileronRPWMs[] = {1750, 1600, 1450, 1300, 1150};
 const unsigned int aileronLPWMs[] = {1700, 1550, 1400, 1275, 1150};
 const unsigned int flapRPWMs[] = {950, 1175, 1400};
 const unsigned int flapLPWMs[] = {1950, 1750, 1550};
 const unsigned int elevatorPWMs[] = {1500, 1500, 1500, 1500, 1500}; // tbd
 const unsigned int rudderPWMs[] = {1500, 1500, 1500, 1500, 1500}; // tbd
-const unsigned int tiltRPWMs[] = {1500, 1500}; // [horizontal, vertical] tbd
+const unsigned int tiltRPWMs[] = {1950, 1250};
 const unsigned int tiltLPWMs[] = {1000, 1700};
-const unsigned int verticalFlightAuthority = 100;
+const unsigned int verticalFlightAuthority = 60;
 
 void setup() {
+  delay(5000); // leave time for reflashing in case of power surge boot loop when powering servos
   servoFlapL.attach(7);
   servoFlapR.attach(2);
   servoAileronL.attach(5);
@@ -47,6 +49,7 @@ void setup() {
   servoTiltR.attach(3);
 
   Serial.begin(115200);
+  Serial.setTimeout(100);
 }
 
 void loop() {
@@ -81,8 +84,8 @@ void loop() {
       servoAileronR.writeMicroseconds(aileronRPWMs[2]);
       servoElevator.writeMicroseconds(elevatorPWMs[2]);
       servoRudder.writeMicroseconds(rudderPWMs[2]);
-      targetRTiltPWM = tiltRPWMs[1] + verticalFlightAuthority * (pitchState + yawState);
-      targetLTiltPWM = tiltLPWMs[1] + verticalFlightAuthority * (pitchState - yawState);
+      targetRTiltPWM = tiltRPWMs[1] + verticalFlightAuthority * (-(pitchState-2) - (yawState-2));
+      targetLTiltPWM = tiltLPWMs[1] + verticalFlightAuthority * ((pitchState-2) - (yawState-2));
     }
 
     targetRFlapPWM = flapRPWMs[flapState];
