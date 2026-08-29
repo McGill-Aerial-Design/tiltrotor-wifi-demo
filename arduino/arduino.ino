@@ -26,16 +26,19 @@ unsigned int currentRTiltPWM = 1500;
 unsigned int targetLTiltPWM = 1500;
 unsigned int targetRTiltPWM = 1500;
 
-//const unsigned int aileronRPWMs[] = {1150, 1300, 1450, 1600, 1750};
 const unsigned int aileronRPWMs[] = {1750, 1600, 1450, 1300, 1150};
 const unsigned int aileronLPWMs[] = {1700, 1550, 1400, 1275, 1150};
 const unsigned int flapRPWMs[] = {950, 1175, 1400};
 const unsigned int flapLPWMs[] = {1950, 1750, 1550};
-const unsigned int elevatorPWMs[] = {1500, 1500, 1500, 1500, 1500}; // tbd
-const unsigned int rudderPWMs[] = {1500, 1500, 1500, 1500, 1500}; // tbd
+const unsigned int elevatorPWMs[] = {1300, 1450, 1600, 1700, 1800};
+const unsigned int rudderPWMs[] = {1350, 1450, 1550, 1650, 1750};
 const unsigned int tiltRPWMs[] = {1950, 1250};
 const unsigned int tiltLPWMs[] = {1000, 1700};
 const unsigned int verticalFlightAuthority = 60;
+
+const byte sprayPin = 10;
+const unsigned long sprayDuration = 1000;
+unsigned long nextSprayStop = 0;
 
 void setup() {
   delay(5000); // leave time for reflashing in case of power surge boot loop when powering servos
@@ -43,10 +46,13 @@ void setup() {
   servoFlapR.attach(2);
   servoAileronL.attach(5);
   servoAileronR.attach(4);
-  servoElevator.attach(9);
-  servoRudder.attach(10);
+  servoElevator.attach(8);
+  servoRudder.attach(9);
   servoTiltL.attach(6);
   servoTiltR.attach(3);
+  
+  pinMode(sprayPin, OUTPUT);
+  digitalWrite(sprayPin, LOW);
 
   Serial.begin(115200);
   Serial.setTimeout(100);
@@ -54,7 +60,8 @@ void setup() {
 
 void loop() {
   if (Serial.available()) {
-    if (Serial.readStringUntil('\n') == "MAD") {
+    String cmd = Serial.readStringUntil('\n');
+    if (cmd == "MAD") {
       targetHorizontalMode = false;
       if (Serial.read() == 'h') {targetHorizontalMode = true;}
       flapState = Serial.read();
@@ -68,6 +75,15 @@ void loop() {
       if (yawState > 4) {yawState = 2;}
       //Serial.println(rollState);
     }
+    else if (cmd == "spray") {
+      nextSprayStop = millis() + sprayDuration;
+      digitalWrite(sprayPin, HIGH);
+    }
+  }
+
+  if (millis() > nextSprayStop) {
+    nextSprayStop = 0; // to prevent problems when millis() overflows
+    digitalWrite(sprayPin, LOW);
   }
 
   if (horizontalMode == targetHorizontalMode) {
