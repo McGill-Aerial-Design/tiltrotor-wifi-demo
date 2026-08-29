@@ -138,6 +138,12 @@ void loop() {
         client.print(redirectToHome);
       }
 
+      else if (req.startsWith("GET /spray")){
+        Serial.print("spray\n");
+        client.print("<p>Spraying water...</p>");
+        client.print(redirectToHome);
+      }
+
 
 
       else {
@@ -196,6 +202,8 @@ void loop() {
         client.print("<a href='/yaw0'><button>neutral</button></a>");
         client.print("<a href='/yaw+1'><button>weak right</button></a>");
         client.print("<a href='/yaw+2'><button>strong right</button></a> </p>\n");
+
+        client.print("<p><a href='/spray'><button>water spray</button></a></p>\n");
       }
 
 
